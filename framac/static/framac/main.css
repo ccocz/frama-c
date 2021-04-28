@@ -1,0 +1,145 @@
+:root {
+    --secondary-columns-color: #949593;
+    --code-area-color: #2c2b2b;
+}
+
+#code-area-main {
+    width: 100%;
+    height: 100%;
+    resize: none;
+    display: inline-block;
+    border: none;
+    background-color: var(--code-area-color);
+    color: lawngreen;
+}
+
+#code-area-secondary {
+    width: 98.5%;
+    height: 50%;
+    resize: none;
+    display: inline-block;
+    border: none;
+    background-color: khaki;
+}
+
+.navi {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+.navi li {
+    float: left;
+}
+
+.navi li a {
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 1em;
+    text-decoration: none;
+}
+
+.navi li a:hover {
+    background-color: #111111;
+    color: white;
+}
+
+
+table {
+    border-collapse: collapse;
+    table-layout: auto;
+    width: 100%;
+}
+
+tr:nth-child(even) {background: #CCC}
+tr:nth-child(odd) {background: #FFF}
+
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+    font-family: sans-serif;
+}
+
+.menu {
+    grid-area: menu;
+    background-color: #d2d2d2;
+}
+
+.file-selection {
+    grid-area: file-selection;
+    background-color: var(--secondary-columns-color);
+}
+
+.source-code {
+    grid-area: source-code;
+}
+
+.elements {
+    grid-area: elements;
+    background-color: var(--secondary-columns-color);
+}
+
+.tab {
+    grid-area: tab;
+    background-color: cadetblue;
+}
+
+.tab-data {
+    grid-area: tab-data;
+    background-color: #202123;
+    text-align: left;
+    color: greenyellow;
+    padding-left: 1em;
+}
+
+.main {
+    display: grid;
+    grid-template-areas:
+        "menu menu menu"
+        "file-selection source-code elements"
+        "file-selection tab tab"
+        "file-selection tab-data tab-data";
+    grid-template-columns: 25% 55% 20%;
+    grid-template-rows: 5% 72% 5% 18%;
+    height: 100%;
+    width: 100%;
+}
+
+
+@media screen and (max-width:767px) {
+    .main {
+        display: grid;
+        grid-template-areas:
+            "menu"
+            "file-selection"
+            "source-code"
+            "elements"
+            "tab"
+            "tab-data";
+        grid-template-columns: 100%;
+        grid-template-rows: 4% 14% 42% 20% 4% 16%;
+        height: 100%;
+        width: 100%;
+    }
+}
+
+@media screen and (min-width:768px) and (max-width:1024px) {
+    .main {
+        display: grid;
+        grid-template-areas:
+            "menu menu"
+            "file-selection source-code"
+            "elements elements"
+            "tab tab"
+            "tab-data tab-data";
+        grid-template-columns: 20% 80%;
+        grid-template-rows: 4% 66% 10% 4% 16%;
+        height: 100%;
+        width: 100%;
+    }
+}

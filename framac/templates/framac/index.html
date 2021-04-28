@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Frama-C</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% load static %}
+    <link rel="stylesheet" type="text/css" href="{% static 'framac/main.css' %}" />
+</head>
+<body>
+    <div class="main">
+        <div class="menu">
+            <ul class="navi">
+                <li><a href="#file">File</a></li>
+                <li><a href="#project">Project</a></li>
+                <li><a href="#analyses">Analyses</a></li>
+                <li><a href="#help">Help</a></li>
+            </ul>
+        </div>
+        <div class="file-selection">
+            <p>Source file</p>
+            {% load tags %}
+            <ul>
+            {% for file in root_directory %}
+                {% with next_e=root_directory|next_element:forloop.counter0 %}
+                {% with previous_e=root_directory|previous_element:forloop.counter0 %}
+                {% if file == "directory:begin" %}
+                    <li>{{ next_e }}</li>
+                    <ul>
+                {% elif file == "directory:end" %}
+                    </ul>
+                {% elif previous_e != "directory:begin" %}
+                    <li>{{ file }}</li>
+                {% endif %}
+                {% endwith %}
+                {% endwith %}
+            {% endfor %}
+            </ul>
+        </div>
+        <div class="source-code">
+            <textarea id="code-area-main">
+                header { grid-area: header; }
+                main { grid-area: main; }
+                footer { grid-area: footer; }
+                .grid1 { grid-area: grid1; }
+                .grid2 { grid-area: grid2; }
+                .grid3 {
+                    grid-area: grid3;
+                }
+            </textarea>
+        </div>
+        <div class="elements">
+            <p>Elements</p>
+            <textarea id="code-area-secondary">
+                header { grid-area: header; }
+                main { grid-area: main; }
+                footer { grid-area: footer; }
+                .grid1 { grid-area: grid1; }
+                .grid2 { grid-area: grid2; }
+                .grid3 {
+                    grid-area: grid3;
+                }
+            </textarea>
+        </div>
+        <div class="tab">
+            <ul class="navi">
+                <li><a href="#information">Information</a></li>
+                <li><a href="#messages">Messages</a></li>
+                <li><a href="#console">Console</a></li>
+                <li><a href="#values">Values</a></li>
+            </ul>
+        </div>
+        <div class="tab-data">
+            <p>Function 'order'</p>
+            <p>Build successful</p>
+        </div>
+    </div>
+</body>
+</html>
