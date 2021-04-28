@@ -5,7 +5,7 @@ class Directory(models.Model):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
     creation_date = models.DateTimeField('creation date')
-    owner = models.IntegerField()
+    owner = models.CharField(max_length=200)
 
     # change name
     def __str__(self):
@@ -26,9 +26,10 @@ class File(models.Model):
     name = models.CharField(max_length=200)
     description = models.CharField(max_length=400, blank=True)
     creation_date = models.DateTimeField()
-    owner = models.IntegerField()
+    owner = models.CharField(max_length=200)
     is_available = models.BooleanField(default=True)
     parent_directory = models.ForeignKey(Directory, on_delete=models.CASCADE)
+    file = models.FileField()
 
     def __str__(self):
         return self.name
