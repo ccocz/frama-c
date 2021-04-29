@@ -5,13 +5,19 @@ from django.utils import timezone
 from .forms import UploadFileForm
 from .forms import NewDirectoryForm
 from .models import Directory
+from .models import File
 
 import os
+import subprocess
 
 
 def index(request):
     root_directory = Directory.objects.get(name='root').__str__()
-    context = {'root_directory': root_directory, 'range': range(root_directory.__len__())}
+    test_source_code = File.objects.get(name="insertion_sort.c").file
+    test_source_code_text = get_actual_source(test_source_code)
+    context = {'root_directory': root_directory,
+               'range': range(root_directory.__len__()),
+               'test_source': test_source_code_text}
     return render(request, 'framac/index.html', context)
 
 
@@ -48,7 +54,11 @@ def new_file(form_, file_):
                                      description=description,
                                      owner=owner,
                                      is_available=True,
-                                     creation_date=timezone.now())
+                                     creation_date=timezone.now(),
+                                     file=file_)
+    cmd = "frama-c -wp -wp-print " + "framac/files/" + name
+    result = subprocess.getoutput(cmd)
+    print(result)
 
 
 def new_directory(form_):
@@ -62,3 +72,10 @@ def new_directory(form_):
                                           description=description,
                                           creation_date=timezone.now(),
                                           is_available=True)
+
+
+def get_actual_source(f):
+    data = ""
+    for chunk in f.chunks():
+        data += chunk.decode()
+    return data

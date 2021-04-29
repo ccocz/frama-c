@@ -29,7 +29,7 @@ class File(models.Model):
     owner = models.CharField(max_length=200)
     is_available = models.BooleanField(default=True)
     parent_directory = models.ForeignKey(Directory, on_delete=models.CASCADE)
-    file = models.FileField()
+    file = models.FileField(upload_to='framac/files')
 
     def __str__(self):
         return self.name
