@@ -77,3 +77,13 @@ class File(models.Model):
     def delete_file(self):
         self.is_available = False
         self.save()
+
+
+class Prover(models.Model):
+    name = models.CharField(max_length=200)
+    is_default = models.BooleanField(default=False)
+
+
+class VC(models.Model):
+    name = models.CharField(max_length=200)
+    is_default = models.BooleanField(default=False)

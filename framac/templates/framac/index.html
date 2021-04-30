@@ -61,14 +61,23 @@
         </div>
         <div class="tab">
             <ul class="navi">
-                <li><a href="#information">Provers</a></li>
-                <li><a href="#messages">VCs</a></li>
+                <li><a href="{% url 'framac:prover' %}">Provers</a></li>
+                <li><a href="{% url 'framac:vc' %}">VCs</a></li>
                 <li><a href="#messages">Result</a></li>
             </ul>
         </div>
         <div class="tab-data">
-            <p>Function 'order'</p>
-            <p>Build successful</p>
+            {% csrf_token %}
+            {% if form %}
+                    <form action="{% url url %}" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {{ form }}
+                        <input type="submit" value="Submit">
+                    </form>
+            {% endif %}
+            {% if data %}
+                {{ data }}
+            {% endif %}
         </div>
     </div>
 </body>

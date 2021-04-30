@@ -6,6 +6,8 @@ from django.utils import timezone
 
 from .forms import UploadFileForm
 from .forms import NewDirectoryForm
+from .forms import ProversChooseForm
+from .forms import VcChooseForm
 
 from .models import Directory
 from .models import StatusData
@@ -13,6 +15,8 @@ from .models import FileSection
 from .models import SectionCategory
 from .models import SectionStatus
 from .models import File
+from .models import Prover
+from .models import VC
 
 import os
 import subprocess
@@ -21,11 +25,8 @@ import re
 
 def index(request):
     root_directory = Directory.objects.get(name='root').__str__()
-    # test_source_code = File.objects.get(name="insertion_sort.c").file
-    # test_source_code_text = get_actual_source(test_source_code)
     context = {'root_directory': root_directory,
                'range': range(root_directory.__len__())}
-    # 'test_source': test_source_code_text}
     return render(request, 'framac/index.html', context)
 
 
@@ -44,12 +45,9 @@ def file_index(request, file_id):
 
 def directory_index(request, directory_id):
     root_directory = Directory.objects.get(name='root').__str__()
-    # test_source_code = File.objects.get(name="insertion_sort.c").file
-    # test_source_code_text = get_actual_source(test_source_code)
     context = {'root_directory': root_directory,
                'range': range(root_directory.__len__()),
                'directory_id': directory_id}
-    # 'test_source': test_source_code_text}
     return render(request, 'framac/index.html', context)
 
 
@@ -63,6 +61,58 @@ def delete_directory(request, directory_id):
     directory = get_object_or_404(Directory, pk=directory_id)
     directory.delete_directory()
     return redirect('framac:index')
+
+
+def prover_tab(request):
+    if request.method == 'POST':
+        form = ProversChooseForm(request.POST)
+        if form.is_valid():
+            change_prover(form.cleaned_data['prover'])
+            return HttpResponseRedirect('/framac')
+    else:
+        form = ProversChooseForm()
+    root_directory = Directory.objects.get(name='root').__str__()
+    current_prover = Prover.objects.get(is_default=True)
+    return render(request, 'framac/index.html', {'form': form,
+                                                 'root_directory': root_directory,
+                                                 'range': range(root_directory.__len__()),
+                                                 'url': "framac:prover",
+                                                 'data': "current prover: " + current_prover.name})
+
+
+def change_prover(prover):
+    current = Prover.objects.get(is_default=True)
+    current.is_default = False
+    current.save()
+    new_prover = Prover.objects.get(name=prover)
+    new_prover.is_default = True
+    new_prover.save()
+
+
+def vc_tab(request):
+    if request.method == 'POST':
+        form = VcChooseForm(request.POST)
+        if form.is_valid():
+            change_vc(form.cleaned_data['vc'])
+            return HttpResponseRedirect('/framac')
+    else:
+        form = VcChooseForm()
+    root_directory = Directory.objects.get(name='root').__str__()
+    current_vc = VC.objects.get(is_default=True)
+    return render(request, 'framac/index.html', {'form': form,
+                                                 'root_directory': root_directory,
+                                                 'range': range(root_directory.__len__()),
+                                                 'url': "framac:vc",
+                                                 'data': "current vc: " + current_vc.name})
+
+
+def change_vc(vc):
+    current = VC.objects.get(is_default=True)
+    current.is_default = False
+    current.save()
+    new_vc = VC.objects.get(name=vc)
+    new_vc.is_default = True
+    new_vc.save()
 
 
 def get_file(request):
