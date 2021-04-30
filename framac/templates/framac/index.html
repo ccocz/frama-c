@@ -12,10 +12,14 @@
     <div class="main">
         <div class="menu">
             <ul class="navi">
+                <li><a href="/framac/">Frama-c</a></li>
                 <li><a href="/framac/add-file">New file</a></li>
                 <li><a href="/framac/add-directory">New directory</a></li>
                 {% if file_id %}
                     <li><a href="{% url 'framac:file_delete' file_id %}">Delete file</a> </li>
+                {% endif %}
+                {% if directory_id %}
+                    <li><a href="{% url 'framac:directory_delete' directory_id %}">Delete directory</a> </li>
                 {% endif %}
             </ul>
         </div>
@@ -27,7 +31,9 @@
                 {% with next_e=root_directory|next_element:forloop.counter0 %}
                 {% with previous_e=root_directory|previous_element:forloop.counter0 %}
                 {% if file == "directory:begin" %}
-                    <li>{{ next_e.name }}</li>
+                    {% if next_e.is_available %}
+                        <li><a href="{% url 'framac:directory' next_e.id %}">{{ next_e.name }}</a></li>
+                    {% endif %}
                     <ul>
                 {% elif file == "directory:end" %}
                     </ul>
@@ -55,10 +61,9 @@
         </div>
         <div class="tab">
             <ul class="navi">
-                <li><a href="#information">Information</a></li>
-                <li><a href="#messages">Messages</a></li>
-                <li><a href="#console">Console</a></li>
-                <li><a href="#values">Values</a></li>
+                <li><a href="#information">Provers</a></li>
+                <li><a href="#messages">VCs</a></li>
+                <li><a href="#messages">Result</a></li>
             </ul>
         </div>
         <div class="tab-data">

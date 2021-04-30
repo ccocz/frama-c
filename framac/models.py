@@ -17,6 +17,14 @@ class Directory(models.Model):
         directory_items.append("directory:end")
         return directory_items
 
+    def delete_directory(self):
+        for directory in self.directory_set.all():
+            directory.delete_directory()
+        for file in self.file_set.all():
+            file.delete_file()
+        self.is_available = False
+        self.save()
+
     is_available = models.BooleanField(default=True)
 
     parent_directory = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
@@ -61,7 +69,11 @@ class File(models.Model):
     is_available = models.BooleanField(default=True)
     parent_directory = models.ForeignKey(Directory, on_delete=models.CASCADE)
     file = models.FileField(upload_to='framac/files')
-    file_sections = models.ManyToManyField(FileSection) # change
+    file_sections = models.ManyToManyField(FileSection)  # change
 
     def __str__(self):
         return self.name
+
+    def delete_file(self):
+        self.is_available = False
+        self.save()

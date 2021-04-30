@@ -42,10 +42,26 @@ def file_index(request, file_id):
     return render(request, 'framac/index.html', context)
 
 
+def directory_index(request, directory_id):
+    root_directory = Directory.objects.get(name='root').__str__()
+    # test_source_code = File.objects.get(name="insertion_sort.c").file
+    # test_source_code_text = get_actual_source(test_source_code)
+    context = {'root_directory': root_directory,
+               'range': range(root_directory.__len__()),
+               'directory_id': directory_id}
+    # 'test_source': test_source_code_text}
+    return render(request, 'framac/index.html', context)
+
+
 def delete_file(request, file_id):
     file = get_object_or_404(File, pk=file_id)
-    file.is_available = False
-    file.save()
+    file.delete_file()
+    return redirect('framac:index')
+
+
+def delete_directory(request, directory_id):
+    directory = get_object_or_404(Directory, pk=directory_id)
+    directory.delete_directory()
     return redirect('framac:index')
 
 
