@@ -17,6 +17,7 @@
                 <li><a href="/framac/add-directory">New directory</a></li>
                 {% if file_id %}
                     <li><a href="{% url 'framac:file_delete' file_id %}">Delete file</a> </li>
+                    <li><a href="{% url 'framac:reprove' file_id %}">Rerun verification</a> </li>
                 {% endif %}
                 {% if directory_id %}
                     <li><a href="{% url 'framac:directory_delete' directory_id %}">Delete directory</a> </li>
@@ -55,7 +56,7 @@
             <textarea id="code-area-secondary">
                 {% for section in file_sections.all %}
                     {{ section.status_data.data }}
-
+                    --------------------
                 {% endfor %}
             </textarea>
         </div>

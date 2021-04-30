@@ -143,3 +143,15 @@ body, html {
         width: 100%;
     }
 }
+
+.Unknown {
+    background-color: gray;
+}
+
+.Valid {
+    background-color: green;
+}
+
+.Failed {
+    background-color: red;
+}

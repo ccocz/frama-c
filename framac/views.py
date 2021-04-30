@@ -129,8 +129,6 @@ def result(request, file_id):
     return render(request, 'framac/index.html', context)
 
 
-
-
 def get_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -169,12 +167,31 @@ def new_file(form_, file_):
     cmd = "frama-c -wp -wp-log=\"r:result.txt\"  " + "framac/files/" + name
     os.system(cmd)
     cmd = "cat result.txt"
-    result = subprocess.getoutput(cmd)
-    nfile.result = result
+    result_file = subprocess.getoutput(cmd)
+    nfile.result = result_file
     nfile.save()
     cmd = "frama-c -wp -wp-print " + "framac/files/" + name
-    result = subprocess.getoutput(cmd)
-    parse_file(nfile, result)
+    result_file = subprocess.getoutput(cmd)
+    parse_file(nfile, result_file)
+
+
+def reprove(request, file_id):
+    file = get_object_or_404(File, pk=file_id)
+    name = os.path.basename(file.name)
+    cmd = "frama-c -wp -wp-log=\"r:result.txt\"  " + "framac/files/" + name
+    os.system(cmd)
+    cmd = "cat result.txt"
+    new_result = subprocess.getoutput(cmd)
+    file.result = new_result
+    prover = get_object_or_404(Prover, is_default=True).name
+    vc = get_object_or_404(VC, is_default=True).name
+    cmd = "frama-c -wp -wp-prover " + prover + " -wp-prop=\" " + vc + "\" -wp-rte -wp-print " + "framac/files/" + name
+    new_result = subprocess.getoutput(cmd)
+    for section in file.file_sections.all():
+        section.delete()
+    file.file_sections.clear()
+    parse_file(file, new_result)
+    return file_index(request, file_id)
 
 
 def new_directory(form_):
