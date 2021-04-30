@@ -115,6 +115,22 @@ def change_vc(vc):
     new_vc.save()
 
 
+def result(request, file_id):
+    file = get_object_or_404(File, pk=file_id)
+    root_directory = Directory.objects.get(name='root').__str__()
+    file_content = get_file_content(file.file)
+    file_sections = file.file_sections
+    context = {'root_directory': root_directory,
+               'range': range(root_directory.__len__()),
+               'file_content': file_content,
+               'file_sections': file_sections,
+               'file_id': file_id,
+               'data': file.result}
+    return render(request, 'framac/index.html', context)
+
+
+
+
 def get_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
@@ -150,6 +166,12 @@ def new_file(form_, file_):
                                              is_available=True,
                                              creation_date=timezone.now(),
                                              file=file_)
+    cmd = "frama-c -wp -wp-log=\"r:result.txt\"  " + "framac/files/" + name
+    os.system(cmd)
+    cmd = "cat result.txt"
+    result = subprocess.getoutput(cmd)
+    nfile.result = result
+    nfile.save()
     cmd = "frama-c -wp -wp-print " + "framac/files/" + name
     result = subprocess.getoutput(cmd)
     parse_file(nfile, result)
@@ -192,7 +214,7 @@ def parse_file(file, wp_result):
 
 def parse_section_and_add(file, section):
     category_name = section[len("Goal "):].split("(")[0]
-    print("[DEBUG] category_name: " + category_name)
+    #print("[DEBUG] category_name: " + category_name)
     if SectionCategory.objects.filter(name=category_name).exists():
         section_category = SectionCategory.objects.get(name=category_name)
     else:
@@ -200,7 +222,7 @@ def parse_section_and_add(file, section):
         section_category.save()
     prover_line = re.findall("Prover.*returns.*", section)[0]
     section_status = prover_line.split("returns")[1]
-    print("[DEBUG] section_status: " + section_status)
+    #print("[DEBUG] section_status: " + section_status)
     if SectionStatus.objects.filter(name=section_status).exists():
         section_status_obj = SectionStatus.objects.get(name=section_status)
     else:

@@ -13,5 +13,6 @@ urlpatterns = [
     path('directories/<int:directory_id>', views.directory_index, name='directory'),
     path('directories/delete/<int:directory_id>', views.delete_directory, name='directory_delete'),
     path('tabs/prover', views.prover_tab, name='prover'),
-    path('tabs/vc', views.vc_tab, name='vc')
+    path('tabs/vc', views.vc_tab, name='vc'),
+    path('tabs/result/<int:file_id>', views.result, name='result')
 ]

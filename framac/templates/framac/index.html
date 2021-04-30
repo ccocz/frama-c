@@ -63,7 +63,9 @@
             <ul class="navi">
                 <li><a href="{% url 'framac:prover' %}">Provers</a></li>
                 <li><a href="{% url 'framac:vc' %}">VCs</a></li>
-                <li><a href="#messages">Result</a></li>
+                {% if file_id %}
+                    <li><a href="{% url 'framac:result' file_id %}">Result</a> </li>
+                {% endif %}
             </ul>
         </div>
         <div class="tab-data">

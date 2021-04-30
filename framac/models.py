@@ -70,6 +70,7 @@ class File(models.Model):
     parent_directory = models.ForeignKey(Directory, on_delete=models.CASCADE)
     file = models.FileField(upload_to='framac/files')
     file_sections = models.ManyToManyField(FileSection)  # change
+    result = models.TextField()
 
     def __str__(self):
         return self.name
