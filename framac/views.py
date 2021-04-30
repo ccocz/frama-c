@@ -1,4 +1,6 @@
 from django.shortcuts import render, get_object_or_404
+from django.shortcuts import redirect
+
 from django.http import HttpResponseRedirect
 from django.utils import timezone
 
@@ -35,8 +37,16 @@ def file_index(request, file_id):
     context = {'root_directory': root_directory,
                'range': range(root_directory.__len__()),
                'file_content': file_content,
-               'file_sections': file_sections}
+               'file_sections': file_sections,
+               'file_id': file_id}
     return render(request, 'framac/index.html', context)
+
+
+def delete_file(request, file_id):
+    file = get_object_or_404(File, pk=file_id)
+    file.is_available = False
+    file.save()
+    return redirect('framac:index')
 
 
 def get_file(request):

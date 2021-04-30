@@ -14,8 +14,9 @@
             <ul class="navi">
                 <li><a href="/framac/add-file">New file</a></li>
                 <li><a href="/framac/add-directory">New directory</a></li>
-                <li><a href="#analyses">Analyses</a></li>
-                <li><a href="#help">Help</a></li>
+                {% if file_id %}
+                    <li><a href="{% url 'framac:file_delete' file_id %}">Delete file</a> </li>
+                {% endif %}
             </ul>
         </div>
         <div class="file-selection">
@@ -26,12 +27,12 @@
                 {% with next_e=root_directory|next_element:forloop.counter0 %}
                 {% with previous_e=root_directory|previous_element:forloop.counter0 %}
                 {% if file == "directory:begin" %}
-                    <li>{{ next_e }}</li>
+                    <li>{{ next_e.name }}</li>
                     <ul>
                 {% elif file == "directory:end" %}
                     </ul>
-                {% elif previous_e != "directory:begin" %}
-                    <li><a href="">{{ file }}</a></li>
+                {% elif previous_e != "directory:begin" and file.is_available == True%}
+                    <li><a href="{% url 'framac:file' file.id %}">{{ file.name }}</a></li>
                 {% endif %}
                 {% endwith %}
                 {% endwith %}
@@ -40,20 +41,16 @@
         </div>
         <div class="source-code">
             <textarea id="code-area-main">
-                {{ test_source}}
+                {{ file_content }}
             </textarea>
         </div>
         <div class="elements">
             <p>Elements</p>
             <textarea id="code-area-secondary">
-                header { grid-area: header; }
-                main { grid-area: main; }
-                footer { grid-area: footer; }
-                .grid1 { grid-area: grid1; }
-                .grid2 { grid-area: grid2; }
-                .grid3 {
-                    grid-area: grid3;
-                }
+                {% for section in file_sections.all %}
+                    {{ section.status_data.data }}
+
+                {% endfor %}
             </textarea>
         </div>
         <div class="tab">

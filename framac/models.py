@@ -9,11 +9,11 @@ class Directory(models.Model):
 
     # change name
     def __str__(self):
-        directory_items = ["directory:begin", self.name]
+        directory_items = ["directory:begin", self]
         for directory in self.directory_set.all():
             directory_items += directory.__str__()
         for file in self.file_set.all():
-            directory_items.append(file.__str__())
+            directory_items.append(file)
         directory_items.append("directory:end")
         return directory_items
 
