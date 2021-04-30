@@ -1,23 +1,41 @@
-from django.shortcuts import render
+from django.shortcuts import render, get_object_or_404
 from django.http import HttpResponseRedirect
 from django.utils import timezone
 
 from .forms import UploadFileForm
 from .forms import NewDirectoryForm
+
 from .models import Directory
+from .models import StatusData
+from .models import FileSection
+from .models import SectionCategory
+from .models import SectionStatus
 from .models import File
 
 import os
 import subprocess
+import re
 
 
 def index(request):
     root_directory = Directory.objects.get(name='root').__str__()
-    test_source_code = File.objects.get(name="insertion_sort.c").file
-    test_source_code_text = get_actual_source(test_source_code)
+    # test_source_code = File.objects.get(name="insertion_sort.c").file
+    # test_source_code_text = get_actual_source(test_source_code)
+    context = {'root_directory': root_directory,
+               'range': range(root_directory.__len__())}
+    # 'test_source': test_source_code_text}
+    return render(request, 'framac/index.html', context)
+
+
+def file_index(request, file_id):
+    file = get_object_or_404(File, pk=file_id)
+    root_directory = Directory.objects.get(name='root').__str__()
+    file_content = get_file_content(file.file)
+    file_sections = file.file_sections
     context = {'root_directory': root_directory,
                'range': range(root_directory.__len__()),
-               'test_source': test_source_code_text}
+               'file_content': file_content,
+               'file_sections': file_sections}
     return render(request, 'framac/index.html', context)
 
 
@@ -50,15 +68,15 @@ def new_file(form_, file_):
     directory = form_.cleaned_data['directory']
     parent_directory = Directory.objects.get(name=directory)
     # should exist
-    parent_directory.file_set.create(name=name,
-                                     description=description,
-                                     owner=owner,
-                                     is_available=True,
-                                     creation_date=timezone.now(),
-                                     file=file_)
+    nfile = parent_directory.file_set.create(name=name,
+                                             description=description,
+                                             owner=owner,
+                                             is_available=True,
+                                             creation_date=timezone.now(),
+                                             file=file_)
     cmd = "frama-c -wp -wp-print " + "framac/files/" + name
     result = subprocess.getoutput(cmd)
-    print(result)
+    parse_file(nfile, result)
 
 
 def new_directory(form_):
@@ -79,3 +97,55 @@ def get_actual_source(f):
     for chunk in f.chunks():
         data += chunk.decode()
     return data
+
+
+def parse_file(file, wp_result):
+    i = 0
+    while i < len(wp_result) and wp_result[i: i + len("----------")] != "----------":
+        i += 1
+    while i < len(wp_result):
+        if is_beginning(wp_result, i):
+            section = ""
+            while i < len(wp_result) and wp_result[i: i + len("----------")] != "----------":
+                section += wp_result[i]
+                i += 1
+            parse_section_and_add(file, section)
+        else:
+            i += 1
+
+
+def parse_section_and_add(file, section):
+    category_name = section[len("Goal "):].split("(")[0]
+    print("[DEBUG] category_name: " + category_name)
+    if SectionCategory.objects.filter(name=category_name).exists():
+        section_category = SectionCategory.objects.get(name=category_name)
+    else:
+        section_category = SectionCategory(name=category_name)
+        section_category.save()
+    prover_line = re.findall("Prover.*returns.*", section)[0]
+    section_status = prover_line.split("returns")[1]
+    print("[DEBUG] section_status: " + section_status)
+    if SectionStatus.objects.filter(name=section_status).exists():
+        section_status_obj = SectionStatus.objects.get(name=section_status)
+    else:
+        section_status_obj = SectionStatus(name=section_status)
+        section_status_obj.save()
+    status_data = StatusData(data=section)
+    status_data.save()
+    file_section = FileSection(creation_date=timezone.now(),
+                               section_category=section_category,
+                               status=section_status_obj,
+                               status_data=status_data)
+    file_section.save()
+    file.file_sections.add(file_section)
+
+
+def is_beginning(wp_result, pos):
+    return pos + 3 < len(wp_result) and wp_result[pos: pos + len("Goal")] == "Goal"
+
+
+def get_file_content(f):
+    content = ""
+    for chunk in f.chunks():
+        content += chunk.decode()
+    return content

@@ -7,5 +7,6 @@ app_name = "framac"
 urlpatterns = [
     path('', views.index, name='index'),
     path('add-file/', views.get_file, name='add-file'),
-    path('add-directory/', views.get_directory, name='add-directory')
+    path('add-directory/', views.get_directory, name='add-directory'),
+    path('files/<int:file_id>', views.file_index, name='file')
 ]

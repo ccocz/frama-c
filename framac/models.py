@@ -22,23 +22,12 @@ class Directory(models.Model):
     parent_directory = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
 
 
-class File(models.Model):
+class SectionCategory(models.Model):
     name = models.CharField(max_length=200)
-    description = models.CharField(max_length=400, blank=True)
-    creation_date = models.DateTimeField()
-    owner = models.CharField(max_length=200)
-    is_available = models.BooleanField(default=True)
-    parent_directory = models.ForeignKey(Directory, on_delete=models.CASCADE)
-    file = models.FileField(upload_to='framac/files')
-
-    def __str__(self):
-        return self.name
 
 
-class FileSection(models.Model):
-    name = models.CharField(max_length=200, blank=True)
-    description = models.CharField(max_length=400, blank=True)
-    creation_date = models.DateTimeField
+class SectionStatus(models.Model):
+    name = models.CharField(max_length=200)
 
 
 class User(models.Model):
@@ -52,4 +41,27 @@ class User(models.Model):
 
 class StatusData(models.Model):
     data = models.TextField(max_length=500)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+
+
+class FileSection(models.Model):
+    name = models.CharField(max_length=200, blank=True)
+    description = models.CharField(max_length=400, blank=True)
+    creation_date = models.DateTimeField()
+    section_category = models.ForeignKey(SectionCategory, on_delete=models.CASCADE)
+    status = models.ForeignKey(SectionStatus, on_delete=models.CASCADE)
+    status_data = models.ForeignKey(StatusData, on_delete=models.CASCADE)
+
+
+class File(models.Model):
+    name = models.CharField(max_length=200)
+    description = models.CharField(max_length=400, blank=True)
+    creation_date = models.DateTimeField()
+    owner = models.CharField(max_length=200)
+    is_available = models.BooleanField(default=True)
+    parent_directory = models.ForeignKey(Directory, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='framac/files')
+    file_sections = models.ManyToManyField(FileSection) # change
+
+    def __str__(self):
+        return self.name
