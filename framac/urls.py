@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from . import views
 
@@ -15,5 +15,6 @@ urlpatterns = [
     path('directories/delete/<int:directory_id>', views.delete_directory, name='directory_delete'),
     path('tabs/prover', views.prover_tab, name='prover'),
     path('tabs/vc', views.vc_tab, name='vc'),
-    path('tabs/result/<int:file_id>', views.result, name='result')
+    path('tabs/result/<int:file_id>', views.result, name='result'),
+    path('users/', include('django.contrib.auth.urls'))
 ]

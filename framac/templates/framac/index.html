@@ -13,8 +13,10 @@
         <div class="menu">
             <ul class="navi">
                 <li><a href="/framac/">Frama-c</a></li>
-                <li><a href="/framac/add-file">New file</a></li>
-                <li><a href="/framac/add-directory">New directory</a></li>
+                {% if user.is_authenticated %}
+                    <li><a href="/framac/add-file">New file</a></li>
+                    <li><a href="/framac/add-directory">New directory</a></li>
+                {% endif %}
                 {% if file_id %}
                     <li><a href="{% url 'framac:file_delete' file_id %}">Delete file</a> </li>
                     <li><a href="{% url 'framac:reprove' file_id %}">Rerun verification</a> </li>
@@ -23,6 +25,14 @@
                     <li><a href="{% url 'framac:directory_delete' directory_id %}">Delete directory</a> </li>
                 {% endif %}
             </ul>
+        </div>
+        <div class="user-space">
+            {% if user.is_authenticated %}
+                Hi {{ user.username }}!
+                <a href="{% url 'framac:logout' %}">Log Out</a>
+            {% else %}
+                  <a href="{% url 'framac:login' %}">Log In</a>
+            {% endif %}
         </div>
         <div class="file-selection">
             <p>Source file</p>
@@ -72,11 +82,11 @@
         <div class="tab-data">
             {% csrf_token %}
             {% if form %}
-                    <form action="{% url url %}" method="POST" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {{ form }}
-                        <input type="submit" value="Submit">
-                    </form>
+                <form action="{% url url %}" method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    {{ form }}
+                    <input type="submit" value="Submit">
+                </form>
             {% endif %}
             {% if data %}
                 {{ data }}

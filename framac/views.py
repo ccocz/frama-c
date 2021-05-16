@@ -133,7 +133,7 @@ def get_file(request):
     if request.method == 'POST':
         form = UploadFileForm(request.POST, request.FILES)
         if form.is_valid():
-            new_file(form, request.FILES['file'])
+            new_file(request.user.username, form, request.FILES['file'])
             return HttpResponseRedirect('/framac')
     else:
         form = UploadFileForm()
@@ -144,16 +144,17 @@ def get_directory(request):
     if request.method == 'POST':
         form = NewDirectoryForm(request.POST)
         if form.is_valid():
-            new_directory(form)
+            new_directory(request.user.username, form)
             return HttpResponseRedirect('/framac')
     else:
         form = NewDirectoryForm()
     return render(request, 'framac/add-directory.html', {'form': form})
 
 
-def new_file(form_, file_):
+def new_file(user, form_, file_):
     name = os.path.basename(file_.name)
-    owner = form_.cleaned_data['owner']
+    #owner = form_.cleaned_data['owner']
+    owner = user
     description = form_.cleaned_data['description']
     directory = form_.cleaned_data['directory']
     parent_directory = Directory.objects.get(name=directory)
@@ -194,9 +195,10 @@ def reprove(request, file_id):
     return file_index(request, file_id)
 
 
-def new_directory(form_):
+def new_directory(user, form_):
     name = form_.cleaned_data['name']
-    owner = form_.cleaned_data['owner']
+    #owner = form_.cleaned_data['owner']
+    owner = user
     description = form_.cleaned_data['description']
     directory = form_.cleaned_data['parent_directory']
     parent_directory = Directory.objects.get(name=directory)

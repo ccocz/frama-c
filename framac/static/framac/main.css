@@ -97,10 +97,15 @@ body, html {
     padding-left: 1em;
 }
 
+.user-space {
+    grid-area: user;
+    background-color: #d2d2d2;
+}
+
 .main {
     display: grid;
     grid-template-areas:
-        "menu menu menu"
+        "menu menu user"
         "file-selection source-code elements"
         "file-selection tab tab"
         "file-selection tab-data tab-data";
@@ -109,7 +114,6 @@ body, html {
     height: 100%;
     width: 100%;
 }
-
 
 @media screen and (max-width:767px) {
     .main {
