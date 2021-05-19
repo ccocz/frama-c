@@ -48,7 +48,7 @@
                     <ul>
                 {% elif file == "directory:end" %}
                     </ul>
-                {% elif previous_e != "directory:begin" and file.is_available == True%}
+                {% elif previous_e != "directory:begin" and file.is_available%}
                     <li><a href="{% url 'framac:file' file.id %}">{{ file.name }}</a></li>
                 {% endif %}
                 {% endwith %}

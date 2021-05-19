@@ -24,7 +24,16 @@ import re
 
 
 def index(request):
-    root_directory = Directory.objects.get(name='root').__str__()
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect('/framac/users/login')
+    if not Directory.objects.filter(name='root', owner=request.user.username).exists():
+        root = Directory(name='root',
+                         owner=request.user.username,
+                         description="root directory of the user",
+                         creation_date=timezone.now(),
+                         is_available=True)
+        root.save()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
     context = {'root_directory': root_directory,
                'range': range(root_directory.__len__())}
     return render(request, 'framac/index.html', context)
@@ -32,7 +41,7 @@ def index(request):
 
 def file_index(request, file_id):
     file = get_object_or_404(File, pk=file_id)
-    root_directory = Directory.objects.get(name='root').__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
     file_content = get_file_content(file.file)
     file_sections = file.file_sections
     context = {'root_directory': root_directory,
@@ -44,7 +53,7 @@ def file_index(request, file_id):
 
 
 def directory_index(request, directory_id):
-    root_directory = Directory.objects.get(name='root').__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
     context = {'root_directory': root_directory,
                'range': range(root_directory.__len__()),
                'directory_id': directory_id}
@@ -71,7 +80,7 @@ def prover_tab(request):
             return HttpResponseRedirect('/framac')
     else:
         form = ProversChooseForm()
-    root_directory = Directory.objects.get(name='root').__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
     current_prover = Prover.objects.get(is_default=True)
     return render(request, 'framac/index.html', {'form': form,
                                                  'root_directory': root_directory,
@@ -97,7 +106,7 @@ def vc_tab(request):
             return HttpResponseRedirect('/framac')
     else:
         form = VcChooseForm()
-    root_directory = Directory.objects.get(name='root').__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
     current_vc = VC.objects.get(is_default=True)
     return render(request, 'framac/index.html', {'form': form,
                                                  'root_directory': root_directory,
@@ -117,7 +126,7 @@ def change_vc(vc):
 
 def result(request, file_id):
     file = get_object_or_404(File, pk=file_id)
-    root_directory = Directory.objects.get(name='root').__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
     file_content = get_file_content(file.file)
     file_sections = file.file_sections
     context = {'root_directory': root_directory,
@@ -157,7 +166,7 @@ def new_file(user, form_, file_):
     owner = user
     description = form_.cleaned_data['description']
     directory = form_.cleaned_data['directory']
-    parent_directory = Directory.objects.get(name=directory)
+    parent_directory = Directory.objects.get(name=directory, owner=user)
     # should exist
     nfile = parent_directory.file_set.create(name=name,
                                              description=description,
