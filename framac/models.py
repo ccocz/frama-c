@@ -6,12 +6,13 @@ class Directory(models.Model):
     description = models.CharField(max_length=400, blank=True)
     creation_date = models.DateTimeField('creation date')
     owner = models.CharField(max_length=200)
+    is_available = models.BooleanField(default=True)
+    parent_directory = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
 
-    # change name
-    def __str__(self):
+    def list_content(self):
         directory_items = ["directory:begin", self]
         for directory in self.directory_set.all():
-            directory_items += directory.__str__()
+            directory_items += directory.list_content()
         for file in self.file_set.all():
             directory_items.append(file)
         directory_items.append("directory:end")
@@ -24,10 +25,6 @@ class Directory(models.Model):
             file.delete_file()
         self.is_available = False
         self.save()
-
-    is_available = models.BooleanField(default=True)
-
-    parent_directory = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
 
 
 class SectionCategory(models.Model):

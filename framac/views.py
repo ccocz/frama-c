@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import redirect
 
-from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
+from django.http import HttpResponseRedirect
 from django.utils import timezone
 
 from .forms import UploadFileForm
@@ -33,7 +33,7 @@ def index(request):
                          creation_date=timezone.now(),
                          is_available=True)
         root.save()
-    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).list_content()
     context = {'root_directory': root_directory,
                'range': range(root_directory.__len__())}
     return render(request, 'framac/index.html', context)
@@ -41,7 +41,7 @@ def index(request):
 
 def file_index(request, file_id):
     file = get_object_or_404(File, pk=file_id)
-    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).list_content()
     file_content = get_file_content(file.file)
     file_sections = file.file_sections
     #file_sections = []
@@ -57,7 +57,7 @@ def file_index(request, file_id):
 
 
 def directory_index(request, directory_id):
-    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).list_content()
     context = {'root_directory': root_directory,
                'range': range(root_directory.__len__()),
                'directory_id': directory_id}
@@ -84,7 +84,7 @@ def prover_tab(request):
             return HttpResponseRedirect('/framac')
     else:
         form = ProversChooseForm()
-    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).list_content()
     current_prover = Prover.objects.get(is_default=True)
     return render(request, 'framac/index.html', {'form': form,
                                                  'root_directory': root_directory,
@@ -110,7 +110,7 @@ def vc_tab(request):
             return HttpResponseRedirect('/framac')
     else:
         form = VcChooseForm()
-    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).list_content()
     current_vc = VC.objects.get(is_default=True)
     return render(request, 'framac/index.html', {'form': form,
                                                  'root_directory': root_directory,
@@ -130,7 +130,7 @@ def change_vc(vc):
 
 def result(request, file_id):
     file = get_object_or_404(File, pk=file_id)
-    root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
+    root_directory = Directory.objects.get(name='root', owner=request.user.username).list_content()
     file_content = get_file_content(file.file)
     file_sections = file.file_sections
     context = {'root_directory': root_directory,
@@ -214,7 +214,7 @@ def new_directory(user, form_):
     owner = user
     description = form_.cleaned_data['description']
     directory = form_.cleaned_data['parent_directory']
-    parent_directory = Directory.objects.get(name=directory)
+    parent_directory = Directory.objects.get(name=directory, owner=user)
     parent_directory.directory_set.create(name=name,
                                           owner=owner,
                                           description=description,
