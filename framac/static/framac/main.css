@@ -11,6 +11,8 @@
     border: none;
     background-color: var(--code-area-color);
     color: lawngreen;
+    overflow: scroll;
+    white-space: pre-wrap;
 }
 
 #code-area-secondary {
@@ -20,6 +22,7 @@
     display: inline-block;
     border: none;
     background-color: khaki;
+    overflow: scroll;
 }
 
 .navi {

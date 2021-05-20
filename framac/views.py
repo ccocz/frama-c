@@ -1,7 +1,7 @@
 from django.shortcuts import render, get_object_or_404
 from django.shortcuts import redirect
 
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse, JsonResponse
 from django.utils import timezone
 
 from .forms import UploadFileForm
@@ -44,11 +44,15 @@ def file_index(request, file_id):
     root_directory = Directory.objects.get(name='root', owner=request.user.username).__str__()
     file_content = get_file_content(file.file)
     file_sections = file.file_sections
+    #file_sections = []
+    #for section in file.file_sections.all():
+        #file_sections.append(section.status_data.data)
     context = {'root_directory': root_directory,
                'range': range(root_directory.__len__()),
                'file_content': file_content,
                'file_sections': file_sections,
                'file_id': file_id}
+    #return HttpResponse(JsonResponse(context), content_type="application/json")
     return render(request, 'framac/index.html', context)
 
 

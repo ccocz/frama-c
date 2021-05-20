@@ -18,11 +18,11 @@
                     <li><a href="/framac/add-directory">New directory</a></li>
                 {% endif %}
                 {% if file_id %}
-                    <li><a href="{% url 'framac:file_delete' file_id %}">Delete file</a> </li>
-                    <li><a href="{% url 'framac:reprove' file_id %}">Rerun verification</a> </li>
+                    <li><a href="{% url 'framac:file_delete' file_id %}" class="dynamic">Delete file</a></li>
+                    <li><a href="{% url 'framac:reprove' file_id %}" class="dynamic">Rerun verification</a> </li>
                 {% endif %}
                 {% if directory_id %}
-                    <li><a href="{% url 'framac:directory_delete' directory_id %}">Delete directory</a> </li>
+                    <li><a href="{% url 'framac:directory_delete' directory_id %}" class="dynamic">Delete directory</a> </li>
                 {% endif %}
             </ul>
         </div>
@@ -43,13 +43,13 @@
                 {% with previous_e=root_directory|previous_element:forloop.counter0 %}
                 {% if file == "directory:begin" %}
                     {% if next_e.is_available %}
-                        <li><a href="{% url 'framac:directory' next_e.id %}">{{ next_e.name }}</a></li>
+                        <li><a href="{% url 'framac:directory' next_e.id %}" class="dynamic">{{ next_e.name }}</a></li>
                     {% endif %}
                     <ul>
                 {% elif file == "directory:end" %}
                     </ul>
                 {% elif previous_e != "directory:begin" and file.is_available%}
-                    <li><a href="{% url 'framac:file' file.id %}">{{ file.name }}</a></li>
+                    <li><a href="{% url 'framac:file' file.id %}" class="dynamic">{{ file.name }}</a></li>
                 {% endif %}
                 {% endwith %}
                 {% endwith %}
@@ -57,25 +57,27 @@
             </ul>
         </div>
         <div class="source-code">
-            <textarea id="code-area-main">
-                {{ file_content }}
-            </textarea>
+            <div id="code-area-main">
+                <span>{{ file_content }}</span>
+            </div>
         </div>
         <div class="elements">
             <p>Elements</p>
-            <textarea id="code-area-secondary">
+            <div id="code-area-secondary">
                 {% for section in file_sections.all %}
-                    {{ section.status_data.data }}
-                    --------------------
+                    <button class="hide-button">Hide</button>
+                    <button class="show-button">Show</button>
+                    <p>{{ section.status_data.data }}</p>
+                    <p class="hidden-status-name">{{ section.status.name }}</p>
                 {% endfor %}
-            </textarea>
+            </div>
         </div>
         <div class="tab">
             <ul class="navi">
-                <li><a href="{% url 'framac:prover' %}">Provers</a></li>
-                <li><a href="{% url 'framac:vc' %}">VCs</a></li>
+                <li><a href="{% url 'framac:prover' %}" class="dynamic">Provers</a></li>
+                <li><a href="{% url 'framac:vc' %}" class="dynamic">VCs</a></li>
                 {% if file_id %}
-                    <li><a href="{% url 'framac:result' file_id %}">Result</a> </li>
+                    <li><a href="{% url 'framac:result' file_id %}" class="dynamic">Result</a> </li>
                 {% endif %}
             </ul>
         </div>
@@ -93,5 +95,43 @@
             {% endif %}
         </div>
     </div>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            $(".dynamic").click(
+                function (e) {
+                    e.preventDefault();
+                    var resource = $(this).attr('href');
+                    //alert(resource)
+                    $.ajax({
+                            url: resource,
+                            success: function (data) {
+                                //$("#code-area-secondary").text(data.file_sections)
+                                $("body").html(data);
+                                $(".hidden-status-name").hide();
+                                //$("#code-area-main").text(data)
+                                //alert(data);
+                            }
+                        }
+                    );
+                }
+            );
+            $(".hide-button").click(
+                function () {
+                    var sctn=$(this).next().next().next().text();
+                    $(this).next().next().hide();
+                    $(this).next().after("<p></p>");
+                    $(this).next().next().text(sctn);
+                }
+            );
+            $(".show-button").click(
+                function () {
+                    $(this).next().remove();
+                    $(this).next().show();
+                }
+            );
+            }
+        );
+    </script>
 </body>
 </html>
