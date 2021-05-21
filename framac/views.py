@@ -44,15 +44,11 @@ def file_index(request, file_id):
     root_directory = Directory.objects.get(name='root', owner=request.user.username).list_content()
     file_content = get_file_content(file.file)
     file_sections = file.file_sections
-    #file_sections = []
-    #for section in file.file_sections.all():
-        #file_sections.append(section.status_data.data)
     context = {'root_directory': root_directory,
                'range': range(root_directory.__len__()),
                'file_content': file_content,
                'file_sections': file_sections,
                'file_id': file_id}
-    #return HttpResponse(JsonResponse(context), content_type="application/json")
     return render(request, 'framac/index.html', context)
 
 
@@ -166,7 +162,6 @@ def get_directory(request):
 
 def new_file(user, form_, file_):
     name = os.path.basename(file_.name)
-    #owner = form_.cleaned_data['owner']
     owner = user
     description = form_.cleaned_data['description']
     directory = form_.cleaned_data['directory']
@@ -210,7 +205,6 @@ def reprove(request, file_id):
 
 def new_directory(user, form_):
     name = form_.cleaned_data['name']
-    #owner = form_.cleaned_data['owner']
     owner = user
     description = form_.cleaned_data['description']
     directory = form_.cleaned_data['parent_directory']

@@ -9,12 +9,16 @@ from .models import File
 from .models import User as UserC
 
 from .forms import NewDirectoryForm
+from .forms import ProversChooseForm
+from .forms import VcChooseForm
 
-def get_empty_directory():
-    return Directory.objects.create(name="usr",
+# Util methods
+
+def get_empty_directory(name, owner):
+    return Directory.objects.create(name=name,
                                     description="user files",
                                     creation_date=timezone.now(),
-                                    owner="root",
+                                    owner=owner,
                                     is_available=True)
 
 
@@ -22,13 +26,15 @@ def get_dummy_file(name):
     return File.objects.create(name=name,
                                creation_date=timezone.now(),
                                owner="public",
-                               parent_directory=get_empty_directory())
+                               parent_directory=get_empty_directory("usr", "root"))
 
+
+# Tests for models
 
 class DirectoryModelTest(TestCase):
 
     def test_empty_directory_string(self):
-        empty_directory = get_empty_directory()
+        empty_directory = get_empty_directory("usr", "root")
         self.assertEqual(empty_directory.list_content(), ["directory:begin", empty_directory, "directory:end"])
 
     def test_directory_with_file_string(self):
@@ -36,13 +42,15 @@ class DirectoryModelTest(TestCase):
                               creation_date=timezone.now(),
                               owner='local',
                               is_available=True)
-        # file = File.objects.get(name="sum.c")
-        # print(file.creation_date)
-        # print(directory.list_content())
-        # self.assertEqual(directory.list_content(), ["directory:begin", directory, file, "directory:end"])
+        directory.save()
+        directory.file_set.create(name='dummy-file',
+                                  creation_date=timezone.now(),
+                                  owner="public")
+        dummy_file = File.objects.get(name="dummy-file")
+        self.assertEqual(directory.list_content(), ["directory:begin", directory, dummy_file, "directory:end"])
 
     def test_if_deletes_directory(self):
-        directory = get_empty_directory()
+        directory = get_empty_directory("usr", "root")
         directory.delete_directory()
         self.assertFalse(directory.is_available)
 
@@ -68,6 +76,8 @@ class FileModelTest(TestCase):
         self.assertIs(file.name, "test-name")
 
 
+# Tests for views
+
 class IndexViewTest(TestCase):
 
     def test_main_page_logged_in(self):
@@ -81,11 +91,60 @@ class IndexViewTest(TestCase):
         self.assertEqual(response.status_code, 302)
 
 
+class FileIndexViewTest(TestCase):
+
+    def test_valid_file_index(self):
+        self.client.force_login(User.objects.create(username="tester"))
+        test_file_content = open("framac/files/test.c")
+        test_file = File.objects.create(name="test_name",
+                                        creation_date=timezone.now(),
+                                        owner="tester",
+                                        parent_directory=get_empty_directory("root", "tester"))
+        test_file.file.save("test", test_file_content)
+        response = self.client.get(reverse("framac:file", kwargs={"file_id": test_file.id}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_absent_file_index(self):
+        response = self.client.get(reverse("framac:file", kwargs={"file_id": 123}))
+        self.assertEqual(response.status_code, 404)
+
+
+# Tests for forms
+
 class NewDirectoryFormTest(TestCase):
 
-    def test_form(self):
-        form_input = {'name': 'tst', 'description':'testing', 'parent_directory':'src'}
-        form = NewDirectoryForm(data=form_input)
+    def test_form_with_valid_data(self):
+        form_input = {'name': 'tst', 'description': 'testing', 'parent_directory': 'src'}
+        form = NewDirectoryForm(form_input)
         self.assertTrue(form.is_valid())
 
+    def test_form_with_invalid_data(self):
+        form_input = {'invalid': 'value'}
+        form = NewDirectoryForm(form_input)
+        self.assertFalse(form.is_valid())
 
+
+class ProversChooseFormTest(TestCase):
+
+    def test_with_valid_data(self):
+        form_input = {'prover': 'alt-ergo'}
+        form = ProversChooseForm(form_input)
+        self.assertTrue(form.is_valid())
+
+    def test_with_invalid_data(self):
+        form_input = {'missing': 'alt-ergo'}
+        form = ProversChooseForm(form_input)
+        self.assertFalse(form.is_valid())
+
+
+class VcChooseFormTest(TestCase):
+
+    def test_valid_data(self):
+        form_data = {'vc': '-@invariant'}
+        form = VcChooseForm(form_data)
+        self.assertTrue(form.is_valid())
+
+    def test_invalid_data(self):
+        form_data = {'vc': 'invariant'}
+        form = VcChooseForm(form_data)
+        self.assertFalse(form.is_valid())
