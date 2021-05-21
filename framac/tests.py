@@ -12,6 +12,7 @@ from .forms import NewDirectoryForm
 from .forms import ProversChooseForm
 from .forms import VcChooseForm
 
+
 # Util methods
 
 def get_empty_directory(name, owner):
@@ -107,6 +108,15 @@ class FileIndexViewTest(TestCase):
     def test_absent_file_index(self):
         response = self.client.get(reverse("framac:file", kwargs={"file_id": 123}))
         self.assertEqual(response.status_code, 404)
+
+
+class DirectoryIndexViewTest(TestCase):
+
+    def test_valid_directory_index(self):
+        self.client.force_login(User.objects.create(username="tester"))
+        get_empty_directory("root", "tester")
+        response = self.client.get(reverse("framac:directory", kwargs={"directory_id": 123}))
+        self.assertEqual(response.status_code, 200)
 
 
 # Tests for forms
