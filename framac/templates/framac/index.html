@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'framac/main.css' %}" />
+    <link rel="stylesheet" href="{% static "codemirror/lib/codemirror.css"%}">
+    <script type="text/javascript" src="{% static "codemirror/lib/codemirror.js"%}"></script>
+    <script type="text/javascript" src="{% static "codemirror/mode/clike/clike.js"%}"></script>
 </head>
 <body>
     <div class="main">
@@ -57,9 +60,9 @@
             </ul>
         </div>
         <div class="source-code">
-            <div id="code-area-main">
-                <span>{{ file_content }}</span>
-            </div>
+            <textarea id="code-area-main">
+                {{ file_content }}
+            </textarea>
         </div>
         <div class="elements">
             <p>Elements</p>
@@ -133,5 +136,15 @@
             }
         );
     </script>
+
+    <!-- Create a simple CodeMirror instance -->
+
+    <script type="text/javascript">
+        var editor = CodeMirror.fromTextArea(document.getElementById("code-area-main"), {
+            lineNumbers: true,
+            mode: "text/x-csrc"
+      });
+    </script>
+
 </body>
 </html>

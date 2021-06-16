@@ -3,18 +3,6 @@
     --code-area-color: #2c2b2b;
 }
 
-#code-area-main {
-    width: 100%;
-    height: 100%;
-    resize: none;
-    display: inline-block;
-    border: none;
-    background-color: var(--code-area-color);
-    color: lawngreen;
-    overflow: scroll;
-    white-space: pre-wrap;
-}
-
 #code-area-secondary {
     width: 98.5%;
     height: 50%;
