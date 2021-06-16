@@ -4,3 +4,4 @@ __pycache__
 .idea
 notes
 result.txt
+.coverage

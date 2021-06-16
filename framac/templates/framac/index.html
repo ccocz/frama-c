@@ -8,6 +8,7 @@
     {% load static %}
     <link rel="stylesheet" type="text/css" href="{% static 'framac/main.css' %}" />
     <link rel="stylesheet" href="{% static "codemirror/lib/codemirror.css"%}">
+    <link rel="stylesheet" href="{% static "codemirror/theme/dracula.css"%}">
     <script type="text/javascript" src="{% static "codemirror/lib/codemirror.js"%}"></script>
     <script type="text/javascript" src="{% static "codemirror/mode/clike/clike.js"%}"></script>
 </head>
@@ -60,9 +61,7 @@
             </ul>
         </div>
         <div class="source-code">
-            <textarea id="code-area-main">
-                {{ file_content }}
-            </textarea>
+            <textarea id="code-area-main">{{ file_content }}</textarea>
         </div>
         <div class="elements">
             <p>Elements</p>
@@ -142,7 +141,8 @@
     <script type="text/javascript">
         var editor = CodeMirror.fromTextArea(document.getElementById("code-area-main"), {
             lineNumbers: true,
-            mode: "text/x-csrc"
+            mode: "text/x-csrc",
+            theme: "dracula"
       });
     </script>
 

@@ -7,6 +7,8 @@ from django.contrib.auth.models import User
 from .models import Directory
 from .models import File
 from .models import User as UserC
+from .models import Prover
+from .models import VC
 
 from .forms import NewDirectoryForm
 from .forms import ProversChooseForm
@@ -28,6 +30,17 @@ def get_dummy_file(name):
                                creation_date=timezone.now(),
                                owner="public",
                                parent_directory=get_empty_directory("usr", "root"))
+
+
+def get_test_file(self):
+    self.client.force_login(User.objects.create(username="tester"))
+    test_file_content = open("framac/files/test.c")
+    test_file = File.objects.create(name="test_name",
+                                    creation_date=timezone.now(),
+                                    owner="tester",
+                                    parent_directory=get_empty_directory("root", "tester"))
+    test_file.file.save("test", test_file_content)
+    return test_file
 
 
 # Tests for models
@@ -76,6 +89,10 @@ class FileModelTest(TestCase):
         file = get_dummy_file("test-name")
         self.assertIs(file.name, "test-name")
 
+    def test_to_string(self):
+        file = get_dummy_file("test-name-str")
+        self.assertIs(file.__str__(), "test-name-str")
+
 
 # Tests for views
 
@@ -95,19 +112,33 @@ class IndexViewTest(TestCase):
 class FileIndexViewTest(TestCase):
 
     def test_valid_file_index(self):
-        self.client.force_login(User.objects.create(username="tester"))
-        test_file_content = open("framac/files/test.c")
-        test_file = File.objects.create(name="test_name",
-                                        creation_date=timezone.now(),
-                                        owner="tester",
-                                        parent_directory=get_empty_directory("root", "tester"))
-        test_file.file.save("test", test_file_content)
+        test_file = get_test_file(self)
         response = self.client.get(reverse("framac:file", kwargs={"file_id": test_file.id}))
         self.assertEqual(response.status_code, 200)
 
     def test_absent_file_index(self):
         response = self.client.get(reverse("framac:file", kwargs={"file_id": 123}))
         self.assertEqual(response.status_code, 404)
+
+    def test_if_deletes_file(self):
+        test_file = get_test_file(self)
+        response = self.client.get(reverse("framac:file_delete", kwargs={"file_id": test_file.id}))
+        self.assertEqual(response.status_code, 302)
+
+    def test_file_results_section(self):
+        test_file = get_test_file(self)
+        response = self.client.get(reverse("framac:result", kwargs={"file_id": test_file.id}))
+        self.assertEqual(response.status_code, 200)
+
+    def test_get_file(self):
+        #self.client.force_login(User.objects.create(username="tester"))
+        response = self.client.get(reverse("framac:add-file"))
+        test_file = get_test_file(self)
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(reverse("framac:add-file"), {'file': test_file.file,
+                                                                 'description': 'dummy_description',
+                                                                 'directory': 'root'})
+        self.assertEqual(response.status_code, 302)
 
 
 class DirectoryIndexViewTest(TestCase):
@@ -117,6 +148,46 @@ class DirectoryIndexViewTest(TestCase):
         get_empty_directory("root", "tester")
         response = self.client.get(reverse("framac:directory", kwargs={"directory_id": 123}))
         self.assertEqual(response.status_code, 200)
+
+    def test_if_deletes_directory(self):
+        self.client.force_login(User.objects.create(username="tester"))
+        directory = get_empty_directory("root", "tester")
+        response = self.client.get(reverse("framac:directory_delete", kwargs={"directory_id": directory.id}))
+        self.assertEquals(response.status_code, 302)
+
+    def test_get_directory(self):
+        self.client.force_login(User.objects.create(username="tester"))
+        response = self.client.get(reverse("framac:add-directory"))
+        self.assertEqual(response.status_code, 200)
+        get_empty_directory("root", "tester")
+        response = self.client.post(reverse("framac:add-directory"), {'name': 'test',
+                                                                      'description': 'main test',
+                                                                      'parent_directory': 'root'})
+        self.assertEqual(response.status_code, 302)
+
+
+class ProverTabViewTest(TestCase):
+
+    def test_get_prover_tab(self):
+        self.client.force_login(User.objects.create(username="tester"))
+        get_empty_directory("root", "tester")
+        Prover.objects.create(name="alt-ergo", is_default=True)
+        response = self.client.get(reverse("framac:prover"))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(reverse("framac:prover"), {'prover': 'alt-ergo'})
+        self.assertEqual(response.status_code, 302)
+
+
+class VcTabViewTest(TestCase):
+
+    def test_get_vc_tab(self):
+        self.client.force_login(User.objects.create(username="tester"))
+        get_empty_directory("root", "tester")
+        VC.objects.create(name="-@invariant", is_default=True)
+        response = self.client.get(reverse("framac:vc"))
+        self.assertEqual(response.status_code, 200)
+        response = self.client.post(reverse("framac:vc"), {'vc': '-@invariant'})
+        self.assertEqual(response.status_code, 302)
 
 
 # Tests for forms

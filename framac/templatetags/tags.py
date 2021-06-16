@@ -13,7 +13,4 @@ def next_element(some_list, current_index):
 
 @register.filter
 def previous_element(some_list, current_index):
-    try:
-        return some_list[int(current_index) - 1]  # access the previous element
-    except:
-        return ''  # return empty string in case of exception
+    return some_list[int(current_index) - 1]  # access the previous element

@@ -52,7 +52,6 @@ body, html {
     padding: 0;
     width: 100%;
     height: 100%;
-    text-align: center;
     font-family: sans-serif;
 }
 
@@ -64,6 +63,7 @@ body, html {
 .file-selection {
     grid-area: file-selection;
     background-color: var(--secondary-columns-color);
+    text-align: center;
 }
 
 .source-code {
@@ -73,6 +73,7 @@ body, html {
 .elements {
     grid-area: elements;
     background-color: var(--secondary-columns-color);
+    text-align: center;
 }
 
 .tab {
@@ -91,6 +92,7 @@ body, html {
 .user-space {
     grid-area: user;
     background-color: #d2d2d2;
+    text-align: center;
 }
 
 .main {
