@@ -268,7 +268,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   }
   var cKeywords = "auto if break case register continue return default do sizeof " +
     "static else struct switch extern typedef union for goto while enum const " +
-    "volatile inline restrict asm fortran";
+    "volatile inline restrict asm fortran requires";
 
   // Keywords from https://en.cppreference.com/w/cpp/keyword includes C++20.
   var cppKeywords = "alignas alignof and and_eq audit axiom bitand bitor catch " +

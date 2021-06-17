@@ -14,6 +14,7 @@ from .forms import NewDirectoryForm
 from .forms import ProversChooseForm
 from .forms import VcChooseForm
 
+from .views import is_beginning
 
 # Util methods
 
@@ -140,6 +141,10 @@ class FileIndexViewTest(TestCase):
                                                                  'directory': 'root'})
         self.assertEqual(response.status_code, 302)
 
+    def test_is_beginning(self):
+        result = "Goal Post-condition"
+        self.assertTrue(is_beginning(result, 0))
+
 
 class DirectoryIndexViewTest(TestCase):
 
@@ -188,6 +193,7 @@ class VcTabViewTest(TestCase):
         self.assertEqual(response.status_code, 200)
         response = self.client.post(reverse("framac:vc"), {'vc': '-@invariant'})
         self.assertEqual(response.status_code, 302)
+
 
 
 # Tests for forms

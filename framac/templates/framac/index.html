@@ -142,8 +142,48 @@
         var editor = CodeMirror.fromTextArea(document.getElementById("code-area-main"), {
             lineNumbers: true,
             mode: "text/x-csrc",
-            theme: "dracula"
+            theme: "dracula",
+            readOnly: true
       });
+    </script>
+
+    <script type="text/javascript">
+
+
+        const comments = document.getElementsByClassName("cm-comment");
+          for (var i = 0; i < comments.length; i++) {
+            if (comments[i].innerHTML[0] === "@" ||
+                (comments[i].innerHTML[0] === "/"
+                    && comments[i].innerHTML[1] === "*"
+                    && comments[i].innerHTML[2] === "@") ||
+                (comments[i].innerHTML[0] === "/"
+                    && comments[i].innerHTML[1] === "/"
+                    && comments[i].innerHTML[2] === "@")) {
+                comments[i].style.color = "yellow";
+            }
+          }
+
+        const textArea = document.getElementById('code-area-main');
+
+          function change_color() {
+              const comments = document.getElementsByClassName("cm-comment");
+              for (var i = 0; i < comments.length; i++) {
+                if (comments[i].innerHTML[0] === "@" ||
+                    (comments[i].innerHTML[0] === "/"
+                        && comments[i].innerHTML[1] === "*"
+                        && comments[i].innerHTML[2] === "@") ||
+                    (comments[i].innerHTML[0] === "/"
+                        && comments[i].innerHTML[1] === "/"
+                        && comments[i].innerHTML[2] === "@")) {
+                    comments[i].style.color = "yellow";
+                }
+              }
+          }
+
+        change_color();
+
+          textArea.onchange(change_color());
+
     </script>
 
 </body>

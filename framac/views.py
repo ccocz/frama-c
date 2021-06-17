@@ -216,13 +216,6 @@ def new_directory(user, form_):
                                           is_available=True)
 
 
-def get_actual_source(f):
-    data = ""
-    for chunk in f.chunks():
-        data += chunk.decode()
-    return data
-
-
 def parse_file(file, wp_result):
     i = 0
     while i < len(wp_result) and wp_result[i: i + len("----------")] != "----------":
@@ -240,7 +233,6 @@ def parse_file(file, wp_result):
 
 def parse_section_and_add(file, section):
     category_name = section[len("Goal "):].split("(")[0]
-    #print("[DEBUG] category_name: " + category_name)
     if SectionCategory.objects.filter(name=category_name).exists():
         section_category = SectionCategory.objects.get(name=category_name)
     else:
@@ -248,7 +240,6 @@ def parse_section_and_add(file, section):
         section_category.save()
     prover_line = re.findall("Prover.*returns.*", section)[0]
     section_status = prover_line.split("returns")[1]
-    #print("[DEBUG] section_status: " + section_status)
     if SectionStatus.objects.filter(name=section_status).exists():
         section_status_obj = SectionStatus.objects.get(name=section_status)
     else:
